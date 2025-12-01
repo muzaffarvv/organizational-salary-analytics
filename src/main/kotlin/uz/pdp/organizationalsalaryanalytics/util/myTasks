@@ -1,0 +1,7 @@
+@Column → always specify size to save memory.
+user <--> dto → linked via mapper: toDto() and toUser().
+Send exceptions with NOT FOUND and a code, for example: 100 for user, 200 for product.
+Extending exceptions,
+working with DTOs, OneToMany (<>) ManyToMany
+ResponseVO
+ Swagger ! .
