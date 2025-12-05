@@ -2,7 +2,6 @@ package uz.pdp.organizationalsalaryanalytics.entity
 
 import jakarta.persistence.*
 import uz.pdp.organizationalsalaryanalytics.base.BaseModel
-import java.util.*
 
 @Entity
 @Table(name = "regions")

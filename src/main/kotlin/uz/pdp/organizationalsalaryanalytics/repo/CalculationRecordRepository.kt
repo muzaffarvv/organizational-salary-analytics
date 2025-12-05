@@ -24,6 +24,19 @@ interface CalculationRecordRepository : BaseRepository<CalculationRecord> {
         HAVING SUM(c.workRate) > :minWorkRate
         ORDER BY SUM(c.workRate) DESC
     """)
+
+//    SELECT
+//    e.pinfl,
+//    SUM(ct.rate) AS total_rate,           -- umumiy ishlangan rate
+//    COUNT(DISTINCT e.id) AS employees_count -- bir xil PINFL ga ega employees
+//    FROM CalculationTable ct
+//    JOIN Employee e ON ct.employee_id = e.id
+//    WHERE ct.date >= '2024-01-01'
+//    AND ct.date < '2024-02-01'
+//    AND ct.rate > 1.0                       -- rate dan ko'p
+//    GROUP BY e.pinfl
+//    HAVING COUNT(DISTINCT e.id) > 1          -- bir xil PINFL lilar
+//    ORDER BY total_rate DESC;
     fun findHighWorkRateEmployees(
         @Param("period") period: String,
         @Param("minWorkRate") minWorkRate: BigDecimal
@@ -46,6 +59,20 @@ interface CalculationRecordRepository : BaseRepository<CalculationRecord> {
     HAVING COUNT(DISTINCT o.region.id) > 1
     ORDER BY COUNT(DISTINCT o.region.id) DESC
 """)
+
+//    SELECT
+//    e.pinfl,
+//    COUNT(DISTINCT ct.organization_id) AS total_organizations, -- organization soni
+//    SUM(ct.amount) AS total_salary,                            -- umumiy salary
+//    COUNT(DISTINCT o.region_id) AS total_regions               -- ishlagan region lar soni
+//    FROM CalculationTable ct
+//    JOIN Employee e ON ct.employee_id = e.id
+//    JOIN Organization o ON ct.organization_id = o.id
+//    WHERE ct.date >= '2024-01-01'
+//    AND ct.date < '2024-02-01'
+//    GROUP BY e.pinfl
+//    HAVING COUNT(DISTINCT o.region_id) > 1                        -- turli region da ishlaganlar
+//    ORDER BY total_salary DESC;
     fun findMultiRegionEmployees(@Param("period") period: String): List<MultiRegionEmployeeReportDto>
 
     @Query("""
@@ -56,6 +83,20 @@ interface CalculationRecordRepository : BaseRepository<CalculationRecord> {
         WHERE e.organization.id IN :organizationIds
         GROUP BY e.id, e.firstName, e.lastName, e.pinfl
     """)
+
+//    SELECT e.id, e.first_name, e.last_name, e.pinfl,
+//    o.id AS org_id,
+//    o.name AS org_name,
+//    AVG(ct.amount) AS avg_salary  -- o'rtacha salary
+//    FROM CalculationTable ct
+//    JOIN Employee e ON ct.employee_id = e.id
+//    JOIN Organization o ON e.organization_id = o.id
+//    WHERE ct.date >= '2024-01-01'
+//    AND ct.date < '2024-02-01'
+//    AND (o.id = :organization_id OR o.parent = :organization_id)    -- berilgan org va child org lar
+//    GROUP BY e.id, e.first_name, e.last_name, e.pinfl, o.id, o.name
+//    ORDER BY avg_salary DESC;
+
     fun findEmployeeSalariesByOrganizations(
         @Param("organizationIds") organizationIds: List<UUID>,
         @Param("period") period: String
@@ -78,6 +119,18 @@ interface CalculationRecordRepository : BaseRepository<CalculationRecord> {
         HAVING SUM(CASE WHEN c.calculationType = 'SALARY' THEN 1 ELSE 0 END) > 0
            AND SUM(CASE WHEN c.calculationType = 'VACATION' THEN 1 ELSE 0 END) > 0
     """)
+//    SELECT e.id, e.first_name, e.last_name, e.pinfl,
+//    SUM(CASE WHEN ct.calculation_type = 'SALARY' THEN ct.amount ELSE 0 END) AS total_salary,
+//    SUM(CASE WHEN ct.calculation_type = 'VACATION' THEN ct.amount ELSE 0 END) AS total_vacation
+//    FROM CalculationTable ct
+//    JOIN Employee e ON ct.employee_id = e.id
+//    WHERE ct.date >= '2024-01-01'
+//    AND ct.date < '2024-02-01'
+//    AND ct.calculation_type IN ('SALARY', 'VACATION')
+//    GROUP BY e.id, e.first_name, e.last_name, e.pinfl
+//    HAVING SUM(CASE WHEN ct.calculation_type = 'SALARY' THEN 1 ELSE 0 END) > 0
+//    AND SUM(CASE WHEN ct.calculation_type = 'VACATION' THEN 1 ELSE 0 END) > 0
+//    ORDER BY total_salary DESC;
     fun findSalaryAndVacationEmployees(@Param("period") period: String): List<SalaryVacationReportDto>
 
     fun findByPeriod(period: String): List<CalculationRecord>
