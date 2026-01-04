@@ -8,6 +8,6 @@ class TestApiController {
 
     @GetMapping("/hello")
     fun hello(): String {
-        return "Assalomu alaykum! API is working )))))"
+        return "Assalomu alaykum! API is working )"
     }
 }
